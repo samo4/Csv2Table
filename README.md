@@ -1,13 +1,29 @@
 # CSV to Table
 
-A tool for importing CSV data directly into a newly created SQL table. CSV file name becomes table name. Column names become field names. The tool also has opinions on how to handle PK and create/modified columns:
+A small tool to import CSV data into a newly created SQL Server table.
 
-- Id is always the PK and of type uniqueidentifier
-- DateCreated is datetime2 and default to GETUTSYSCDATE()
-- DateModified is the same, but nullable
-- UserCreatedId and UserModifiedId are uniqueidentifier, one nullable one not
+Basic behaviour
+- Table name is inferred from the CSV file name (extension removed).
+- Every CSV column becomes `NVARCHAR(255)` by default.
+- If the CSV does not contain an `Id` column (case-insensitive) the tool will add:
+  - `Id` UNIQUEIDENTIFIER NOT NULL DEFAULT `NEWID()` PRIMARY KEY
+- Audit columns are added when appropriate:
+  - `DateCreated` DATETIME2 NOT NULL DEFAULT `SYSUTCDATETIME()`
+  - `DateModified` DATETIME2 NULL
+  - `UserCreatedId` UNIQUEIDENTIFIER NOT NULL
+  - `UserModifiedId` UNIQUEIDENTIFIER NULL
+- Identifiers are escaped with square brackets for SQL Server compatibility.
 
-All data is considered nvarchar (255) with the intention to change the type once the data is on server.
+Delimiter detection is guessing; you can pass a delimiter explicitly if needed. The tool executes the generated `CREATE TABLE` SQL and inserts rows using parameterized statements inside a transaction.
+
+Windows only (for now) (I was lazy and wanted to use system file dialogs).
+
+## Getting started
+
+- Build with .NET 10 SDK.
+- Provide a valid connection string to load the created table into your SQL Server instance.
+
+## Usage
 
 You can for example use this to fix the data for conversion to decimal:
 
