@@ -40,7 +40,7 @@ namespace Csv2Table
                 columns.Add(col);
             }
             columns.Add("    [DateCreated] [datetime2](7) NOT NULL DEFAULT SYSUTCDATETIME() ");
-            columns.Add("    [DateModified] [datetime2](7) NULL ");
+            columns.Add("    [DateModified] [datetime2](7) NOT NULL DEFAULT SYSUTCDATETIME() ");
             columns.Add("    [UserCreatedId] UNIQUEIDENTIFIER NOT NULL ");
             columns.Add("    [UserModifiedId] UNIQUEIDENTIFIER NULL ");
 

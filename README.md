@@ -9,7 +9,7 @@ Basic behaviour:
 - the tool will add  these columns (or blow up if they are already in the CSV):
   - `Id` UNIQUEIDENTIFIER NOT NULL DEFAULT `NEWID()` PRIMARY KEY
   - `DateCreated` DATETIME2 NOT NULL DEFAULT `SYSUTCDATETIME()`
-  - `DateModified` DATETIME2 NULL
+  - `DateModified` DATETIME2 NOT NULL DEFAULT `SYSUTCDATETIME()`
   - `UserCreatedId` UNIQUEIDENTIFIER NOT NULL
   - `UserModifiedId` UNIQUEIDENTIFIER NULL
 - Identifiers are escaped with square brackets for SQL Server compatibility.

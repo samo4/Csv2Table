@@ -3,12 +3,27 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using Microsoft.Data.SqlClient;
 
 namespace Csv2Table
 {
-    internal class OperationsSql
+    internal partial class OperationsSql
     {
+        public static string EnsureEntityName(string entityName)
+        {
+            if (string.IsNullOrEmpty(entityName) || !EntityNameRegex().IsMatch(entityName))
+            {
+                throw new ArgumentException(
+                    "Invalid entityName. Only a-z, A-Z, 0-9, dot, comma, spaces, and underscore are allowed."
+                );
+            }
+            return $"[{entityName}]";
+        }
+
+        [GeneratedRegex(@"^[a-zA-Z0-9_\.\,\s]+$")]
+        private static partial Regex EntityNameRegex();
+
         public static int CreateAndLoadTable(Table2CsvOptions opts, string tableName, List<dynamic> rows, string sql)
         {
             if (opts == null)
@@ -32,6 +47,7 @@ namespace Csv2Table
             var insertColumns = headers.ToList();
             try
             {
+                var entityName = EnsureEntityName(tableName);
                 using var conn = new SqlConnection(opts.ConnectionString);
                 conn.Open();
 
@@ -46,7 +62,7 @@ namespace Csv2Table
                 insertColumns.Add("UserCreatedId");
                 var columnList = string.Join(", ", insertColumns.Select(OperationsCsv.EscapeIdentifier));
                 var paramNamesTemplate = string.Join(", ", Enumerable.Range(0, insertColumns.Count).Select(i => $"@p{i}"));
-                var insertSql = $"INSERT INTO {tableName} ({columnList}) VALUES ({paramNamesTemplate})";
+                var insertSql = $"INSERT INTO {entityName} ({columnList}) VALUES ({paramNamesTemplate})";
 
                 foreach (var row in rows)
                 {
